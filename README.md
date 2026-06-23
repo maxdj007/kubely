@@ -85,7 +85,31 @@ Kubely is a **cross-platform mobile app** (iOS & Android) that lets you manage K
 
 ## Screenshots
 
-> Open [`design_handoff_helm_cockpit/Helm Cockpit.dc.html`](../design_handoff_helm_cockpit/Helm%20Cockpit.dc.html) in a browser to see the full design reference with all screens rendered as phone frames.
+<p align="center">
+  <img src="screenshots/Screenshot_1782232224.png" width="180" alt="Splash screen" />
+  <img src="screenshots/Screenshot_1782232270.png" width="180" alt="Vitals dashboard" />
+  <img src="screenshots/Screenshot_1782232283.png" width="180" alt="Cluster switcher" />
+  <img src="screenshots/Screenshot_1782232312.png" width="180" alt="Events feed" />
+</p>
+
+<p align="center">
+  <img src="screenshots/Screenshot_1782232974.png" width="180" alt="Workloads — Pods" />
+  <img src="screenshots/Screenshot_1782232977.png" width="180" alt="Workloads — Deployments" />
+  <img src="screenshots/Screenshot_1782232960.png" width="180" alt="Shell terminal" />
+  <img src="screenshots/Screenshot_1782232314.png" width="180" alt="More menu" />
+</p>
+
+<p align="center">
+  <img src="screenshots/Screenshot_1782233094.png" width="180" alt="Network — Services" />
+  <img src="screenshots/Screenshot_1782233120.png" width="180" alt="Storage — PVCs" />
+  <img src="screenshots/Screenshot_1782233134.png" width="180" alt="ConfigMaps" />
+  <img src="screenshots/Screenshot_1782233154.png" width="180" alt="Helm releases" />
+</p>
+
+<p align="center">
+  <img src="screenshots/Screenshot_1782232318.png" width="180" alt="Add cluster" />
+  <img src="screenshots/Screenshot_1782232260.png" width="180" alt="Fetching cluster data" />
+</p>
 
 ## Getting Started
 

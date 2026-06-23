@@ -40,7 +40,10 @@ class KubernetesLogStream {
       final response = await dio.get(
         '/api/v1/namespaces/$namespace/pods/$pod/log',
         queryParameters: queryParams,
-        options: Options(responseType: ResponseType.stream),
+        options: Options(
+          responseType: ResponseType.stream,
+          receiveTimeout: Duration.zero,
+        ),
         cancelToken: _cancelToken,
       );
 

@@ -202,11 +202,12 @@ class _AddClusterScreenState extends ConsumerState<AddClusterScreen> {
               height: KubelySpacing.appBarHeight,
               child: Row(
                 children: [
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).maybePop(),
-                    child: Icon(LucideIcons.chevronLeft,
-                        size: 24, color: KubelyColors.textSecondary),
-                  ),
+                  if (Navigator.of(context).canPop())
+                    GestureDetector(
+                      onTap: () => Navigator.of(context).maybePop(),
+                      child: Icon(LucideIcons.chevronLeft,
+                          size: 24, color: KubelyColors.textSecondary),
+                    ),
                   const SizedBox(width: 12),
                   Text('Add cluster', style: KubelyTypography.appBarTitle),
                 ],

@@ -29,6 +29,9 @@ class ClusterHealth {
   final List<AlertData> alerts;
 
   bool get isHealthy => status == 'Healthy';
+  bool get isWarning => status == 'Warning';
+  bool get isDegraded => status == 'Degraded';
+  bool get isCritical => status == 'Critical';
 }
 
 class AlertData {
@@ -794,7 +797,30 @@ final realClusterHealthProvider =
 
     final healthPercent =
         podCount > 0 ? runningPods / podCount : 0.0;
-    final isHealthy = alerts.isEmpty && healthPercent > 0.9;
+
+    // Multi-tier health status based on industry SRE practices:
+    //
+    // "Healthy"   — >=95% pods running AND no critical alerts (CrashLoop/Failed)
+    // "Warning"   — >=80% pods running OR only non-critical alerts (Pending pods)
+    // "Degraded"  — >=50% pods running OR critical alerts present
+    // "Critical"  — <50% pods running OR no nodes available
+    //
+    // Alert severity matters: CrashLoopBackOff and Failed are critical,
+    // Pending/Unknown are warnings. A few warnings shouldn't tank the status.
+    final criticalAlerts = alerts.where((a) =>
+        a.status == 'CrashLoopBackOff' || a.status == 'Failed').toList();
+    final criticalRatio = podCount > 0 ? criticalAlerts.length / podCount : 0.0;
+
+    String healthStatus;
+    if (nodeCount == 0 || healthPercent < 0.50) {
+      healthStatus = 'Critical';
+    } else if (criticalRatio > 0.10 || healthPercent < 0.80) {
+      healthStatus = 'Degraded';
+    } else if (criticalAlerts.isNotEmpty || healthPercent < 0.95) {
+      healthStatus = 'Warning';
+    } else {
+      healthStatus = 'Healthy';
+    }
 
     // Try to fetch CPU/MEM metrics from metrics-server
     double cpuPercent = 0;
@@ -838,7 +864,7 @@ final realClusterHealthProvider =
     }
 
     return ClusterHealth(
-      status: isHealthy ? 'Healthy' : 'Degraded',
+      status: healthStatus,
       percent: healthPercent,
       podCount: podCount,
       deployCount: deployCount,

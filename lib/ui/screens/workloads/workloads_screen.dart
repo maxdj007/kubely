@@ -60,9 +60,14 @@ class _WorkloadsScreenState extends ConsumerState<WorkloadsScreen> {
   }
 
   List<ServiceData> get _filteredServices {
-    final services = ref.read(serviceListProvider).valueOrNull ?? const [];
-    if (_searchQuery.isEmpty) return services;
-    return services.where((s) => s.name.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
+    var services = ref.read(serviceListProvider).valueOrNull ?? const [];
+    if (_namespace != 'all') {
+      services = services.where((s) => s.namespace == _namespace).toList();
+    }
+    if (_searchQuery.isNotEmpty) {
+      services = services.where((s) => s.name.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
+    }
+    return services;
   }
 
   String get _countLabel {

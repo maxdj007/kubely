@@ -162,7 +162,7 @@ class ClusterSwitcherSheet extends StatelessWidget {
             child: GestureDetector(
               onTap: () {
                 Navigator.of(context).pop();
-                context.go('/add-cluster');
+                context.push('/add-cluster');
               },
               child: Container(
                 width: double.infinity,

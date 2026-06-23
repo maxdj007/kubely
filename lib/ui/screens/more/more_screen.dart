@@ -94,7 +94,7 @@ class MoreScreen extends StatelessWidget {
                   label: 'Add Cluster',
                   subtitle: 'Import kubeconfig',
                   color: KubelyColors.running,
-                  onTap: () => context.go('/add-cluster'),
+                  onTap: () => context.push('/add-cluster'),
                 ),
 
                 const SizedBox(height: 22),

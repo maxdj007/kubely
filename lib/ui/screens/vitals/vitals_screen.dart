@@ -201,7 +201,10 @@ class _VitalsScreenState extends ConsumerState<VitalsScreen>
 
                 // Health hero card
                 HeroCard(
-                  borderColor: health.isHealthy ? KubelyColors.runningBorder : KubelyColors.warningBorder,
+                  borderColor: (health.isCritical ? KubelyColors.criticalBorder
+                      : health.isDegraded ? KubelyColors.warningBorder
+                      : health.isWarning ? KubelyColors.warningBorder
+                      : KubelyColors.runningBorder),
                   child: Column(
                     children: [
                       Row(
@@ -214,9 +217,14 @@ class _VitalsScreenState extends ConsumerState<VitalsScreen>
                                 Text(health.status,
                                     style: KubelyTypography.monoHeroMetric
                                         .copyWith(
-                                            color: health.isHealthy ? KubelyColors.running : KubelyColors.warning)),
+                                            color: health.isCritical ? KubelyColors.critical
+                                                : health.isDegraded ? KubelyColors.warning
+                                                : health.isWarning ? KubelyColors.warning
+                                                : KubelyColors.running)),
                                 const SizedBox(height: 3),
-                                Text(health.isHealthy ? 'All systems operational' : '${health.alerts.length} issue${health.alerts.length == 1 ? "" : "s"} detected',
+                                Text(health.isHealthy
+                                    ? 'All systems operational'
+                                    : '${health.alerts.length} issue${health.alerts.length == 1 ? "" : "s"} detected',
                                     style: KubelyTypography.body.copyWith(
                                         color: KubelyColors.textMuted)),
                               ],
