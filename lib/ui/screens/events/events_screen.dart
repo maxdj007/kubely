@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,6 +23,21 @@ class EventsScreen extends ConsumerStatefulWidget {
 class _EventsScreenState extends ConsumerState<EventsScreen> {
   String _namespace = 'all';
   String _filter = 'all'; // 'all', 'Warning', 'Normal'
+  Timer? _refreshTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+      if (mounted) ref.invalidate(eventListProvider);
+    });
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
 
   List<EventData> get _filteredEvents {
     var events = ref.read(eventListProvider).valueOrNull ?? const [];
@@ -165,7 +181,8 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
               color: KubelyColors.accent,
               backgroundColor: KubelyColors.surface,
               onRefresh: () async {
-                await Future.delayed(const Duration(seconds: 1));
+                ref.invalidate(eventListProvider);
+                await ref.read(eventListProvider.future);
               },
               child: ListView.builder(
               padding: EdgeInsets.only(
