@@ -43,3 +43,45 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# ---------------------------------------------------------------------------
+# Secrets — Kubely is open source, so nothing below may ever be committed.
+# ---------------------------------------------------------------------------
+
+# Kubeconfigs. These carry cluster CA certs, client keys and bearer tokens.
+# Kubely is a Kubernetes client, so a real kubeconfig dropped in for manual
+# testing is the single most likely way to leak live cluster access.
+kubeconfig
+kubeconfig.*
+*.kubeconfig
+.kube/
+# Output of deploy/app-review/make-reviewer-kubeconfig.sh — contains a live
+# ServiceAccount token for the demo cluster.
+reviewer-kubeconfig.yaml
+deploy/app-review/reviewer-kubeconfig.yaml
+
+# Keys, certificates and generic credential files
+*.pem
+*.p12
+*.pfx
+*.cer
+*.der
+*.certSigningRequest
+*.env
+.env
+.env.*
+
+# Apple code signing and distribution
+*.mobileprovision
+*.provisionprofile
+AuthKey_*.p8
+ios/ExportOptions.plist
+ios/Flutter/Local.xcconfig
+ios/fastlane/report.xml
+ios/fastlane/Preview.html
+ios/fastlane/screenshots
+
+# Android code signing
+*.jks
+*.keystore
+/android/key.properties

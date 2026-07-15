@@ -4,7 +4,7 @@ import '../../../core/theme/kubely_colors.dart';
 import '../../../core/theme/kubely_typography.dart';
 import '../../../core/constants/spacing.dart';
 import '../../shared/cluster_switcher_pill.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});

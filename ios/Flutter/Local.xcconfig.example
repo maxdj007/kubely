@@ -1,0 +1,16 @@
+// Local, machine-specific signing settings for Kubely.
+//
+// Copy this file to "Local.xcconfig" (same directory) and fill in your own
+// Apple Developer Team ID. Local.xcconfig is gitignored so that signing
+// identity never lands in this open-source repository.
+//
+//     cp ios/Flutter/Local.xcconfig.example ios/Flutter/Local.xcconfig
+//
+// Your Team ID is the 10-character code shown under Membership details at
+// https://developer.apple.com/account — for example "A1B2C3D4E5".
+//
+// Contributors who only run the app on a simulator can skip this entirely;
+// the include in Debug/Release.xcconfig is optional.
+
+DEVELOPMENT_TEAM = YOUR_TEAM_ID_HERE
+CODE_SIGN_STYLE = Automatic

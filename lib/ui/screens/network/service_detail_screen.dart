@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/theme/kubely_colors.dart';
 import '../../../core/theme/kubely_typography.dart';
 import '../../../core/constants/spacing.dart';
 import '../../../state/providers/mock_data_provider.dart';
-import '../../../state/providers/k8s_data_provider.dart';
 import '../../shared/hero_card.dart';
 import '../../shared/status_dot.dart';
 import '../../shared/confirm_bottom_sheet.dart';

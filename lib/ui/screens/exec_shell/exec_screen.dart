@@ -13,7 +13,7 @@ import '../../../data/repositories/kubeconfig_parser.dart';
 import '../../../data/services/secure_storage_service.dart';
 import '../../../state/providers/cluster_provider.dart';
 import '../../../state/providers/k8s_data_provider.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class ExecScreen extends ConsumerStatefulWidget {
   const ExecScreen({super.key});

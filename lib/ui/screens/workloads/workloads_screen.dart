@@ -13,7 +13,7 @@ import '../../shared/sparkline.dart';
 import '../../shared/swipe_action_row.dart';
 import '../../shared/confirm_bottom_sheet.dart';
 import '../../shared/state_widgets.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class WorkloadsScreen extends ConsumerStatefulWidget {
   const WorkloadsScreen({super.key});

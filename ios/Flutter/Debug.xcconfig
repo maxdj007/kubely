@@ -1,1 +1,6 @@
+#include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"
 #include "Generated.xcconfig"
+
+// Local signing settings (DEVELOPMENT_TEAM). Gitignored — see Local.xcconfig.example.
+// The "?" makes this optional, so contributors without the file can still build.
+#include? "Local.xcconfig"

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 import 'dart:io';
 import '../../../core/theme/kubely_colors.dart';
 import '../../../core/theme/kubely_typography.dart';
@@ -19,6 +19,7 @@ import '../../../data/services/secure_storage_service.dart';
 import '../../../data/services/aws_auth.dart';
 import '../../../data/services/kubernetes_auth.dart';
 import '../cluster_switcher/cluster_switcher_sheet.dart';
+import '../../../data/services/demo_cluster.dart';
 
 class AddClusterScreen extends ConsumerStatefulWidget {
   const AddClusterScreen({super.key});
@@ -34,6 +35,9 @@ class _AddClusterScreenState extends ConsumerState<AddClusterScreen> {
   KubeconfigResult? _parsed;
   String? _parseError;
 
+  final GlobalKey _qrKey = GlobalKey(debugLabel: 'kubely_qr');
+  String? _cameraError;
+
   static const _methods = ['Paste', 'File', 'QR'];
 
 
@@ -47,11 +51,87 @@ class _AddClusterScreenState extends ConsumerState<AddClusterScreen> {
     _tryParse(_yamlController.text);
   }
 
+  /// Adds the built-in demo cluster, which is served from local fixtures rather
+  /// than a real API server. Lets anyone evaluate Kubelly without a cluster.
+  void _connectDemoCluster() {
+    ref.read(clusterProvider.notifier).addCluster(
+          const ClusterOption(
+            name: kDemoClusterName,
+            provider: 'DEMO',
+            region: 'sample data',
+          ),
+        );
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Demo cluster connected — showing sample data'),
+        backgroundColor: KubelyColors.accent,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+    context.go('/vitals');
+  }
+
   @override
   void dispose() {
     _yamlController.removeListener(_onYamlChanged);
     _yamlController.dispose();
+    // The QRViewController self-disposes when the QRView is unmounted; calling
+    // dispose() here re-issues stopCamera on an already-torn-down scanner, which
+    // throws CameraException(404, No barcode scanner found).
     super.dispose();
+  }
+
+  void _onCameraPermissionSet(QRViewController _, bool granted) {
+    if (granted || !mounted) return;
+    setState(() => _cameraError =
+        'Kubelly needs camera access to scan a kubeconfig QR code. '
+        'Enable it in Settings, or add the cluster by pasting the YAML or picking a file.');
+  }
+
+  void _onQRViewCreated(QRViewController controller) {
+    // The camera can be absent entirely (iOS Simulator has none) or otherwise
+    // unusable. Probe so the tab can degrade to a message instead of leaving the
+    // user staring at a black rectangle — but keep the preview mounted while we
+    // probe, since tearing it down would stop the camera from ever starting.
+    _probeCamera(controller);
+
+    controller.scannedDataStream.listen((barcode) {
+      final value = barcode.code;
+      if (value == null || !value.contains('apiVersion')) return;
+      // The stream keeps firing while the code is in frame, so stop the camera
+      // before handing off to avoid re-parsing the same kubeconfig repeatedly.
+      controller.pauseCamera();
+      if (!mounted) return;
+      _yamlController.text = value;
+      _tryParse(value);
+      setState(() => _methodIndex = 0);
+    });
+  }
+
+  /// Probes the camera, retrying while the native scanner is still initializing.
+  /// getSystemFeatures() throws (or reports no cameras) if called before iOS has
+  /// finished bringing the camera up, so a single early failure must not be
+  /// treated as "no camera" — that would tear down the preview and prevent the
+  /// camera from ever starting. Only give up after several attempts.
+  Future<void> _probeCamera(QRViewController controller, {int attempt = 0}) async {
+    const maxAttempts = 5;
+    try {
+      final features = await controller.getSystemFeatures();
+      if (!mounted) return;
+      if (features.hasBackCamera || features.hasFrontCamera) return;
+    } catch (_) {
+      // Still initializing — fall through to retry.
+    }
+    if (!mounted) return;
+    if (attempt < maxAttempts) {
+      await Future.delayed(const Duration(milliseconds: 400));
+      if (!mounted) return;
+      return _probeCamera(controller, attempt: attempt + 1);
+    }
+    setState(() => _cameraError =
+        'The camera could not be started. Add the cluster by pasting the '
+        'kubeconfig YAML or picking a file instead.');
   }
 
   void _tryParse(String yaml) {
@@ -296,24 +376,44 @@ class _AddClusterScreenState extends ConsumerState<AddClusterScreen> {
 
                   // QR tab
                   if (_methodIndex == 2) ...[
+                    if (_cameraError != null)
+                      Container(
+                        height: 300,
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: KubelyColors.surface,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(LucideIcons.cameraOff,
+                                size: 32, color: KubelyColors.textMuted),
+                            const SizedBox(height: 12),
+                            Text(
+                              _cameraError!,
+                              textAlign: TextAlign.center,
+                              style: KubelyTypography.body.copyWith(
+                                color: KubelyColors.textMuted,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
                     ClipRRect(
                       borderRadius: BorderRadius.circular(14),
                       child: SizedBox(
                         height: 300,
                         child: Stack(
                           children: [
-                            MobileScanner(
-                              onDetect: (capture) {
-                                final barcodes = capture.barcodes;
-                                if (barcodes.isNotEmpty) {
-                                  final value = barcodes.first.rawValue;
-                                  if (value != null && value.contains('apiVersion')) {
-                                    _yamlController.text = value;
-                                    _tryParse(value);
-                                    setState(() => _methodIndex = 0);
-                                  }
-                                }
-                              },
+                            QRView(
+                              key: _qrKey,
+                              onQRViewCreated: _onQRViewCreated,
+                              onPermissionSet: _onCameraPermissionSet,
+                              formatsAllowed: const [BarcodeFormat.qrcode],
                             ),
                             // Viewfinder overlay
                             Center(
@@ -565,6 +665,62 @@ class _AddClusterScreenState extends ConsumerState<AddClusterScreen> {
                         ],
                       ),
                     ),
+                  ),
+                ),
+
+                // No cluster to hand? Explore Kubelly against built-in sample
+                // data. Everything is generated on-device; nothing is sent
+                // anywhere and no kubeconfig is needed.
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(child: Divider(color: KubelyColors.hairline)),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text('or',
+                          style: KubelyTypography.body.copyWith(
+                            color: KubelyColors.textDim,
+                            fontSize: 12,
+                          )),
+                    ),
+                    Expanded(child: Divider(color: KubelyColors.hairline)),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: OutlinedButton(
+                    onPressed: _connectDemoCluster,
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: KubelyColors.hairline),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(LucideIcons.play,
+                            size: 16, color: KubelyColors.accent),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Try demo cluster',
+                          style: KubelyTypography.buttonText
+                              .copyWith(color: KubelyColors.accent),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Explore Kubelly with sample data. No cluster or kubeconfig '
+                  'needed — everything is generated on your device.',
+                  textAlign: TextAlign.center,
+                  style: KubelyTypography.body.copyWith(
+                    color: KubelyColors.textDim,
+                    fontSize: 12,
                   ),
                 ),
               ],

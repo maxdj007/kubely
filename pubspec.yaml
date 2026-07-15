@@ -29,11 +29,15 @@ dependencies:
   # File picker (add-cluster flow)
   file_picker: ^8.1.7
 
-  # QR scanner (add-cluster flow)
-  mobile_scanner: ^6.0.5
+  # QR scanner (add-cluster flow).
+  # ZXing-based: AVFoundation on iOS, ZXing on Android. Deliberately NOT
+  # mobile_scanner, whose iOS build links Google ML Kit — that bundles a
+  # Clearcut telemetry client and would force us to declare data collection,
+  # contradicting Kubely's on-device-only guarantee.
+  qr_code_scanner_plus: ^2.2.0
 
   # Icons (Feather/Lucide style)
-  lucide_icons: ^0.257.0
+  lucide_icons_flutter: ^3.1.15
 
   # SVG rendering (brand assets)
   flutter_svg: ^2.0.17
@@ -54,6 +58,11 @@ flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/brand/kubely-app-icon-1024.png"
+  # The App Store rejects icons with an alpha channel, so the iOS variants are
+  # flattened onto the brand background. Android's adaptive foreground still
+  # needs the transparency, so the source asset keeps it.
+  remove_alpha_ios: true
+  background_color_ios: "#0A0B0F"
   adaptive_icon_background: "#0A0B0F"
   adaptive_icon_foreground: "assets/brand/kubely-app-icon-1024.png"
 

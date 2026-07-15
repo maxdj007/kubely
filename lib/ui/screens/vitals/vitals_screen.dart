@@ -10,7 +10,7 @@ import '../../shared/on_device_badge.dart';
 import '../../shared/hero_card.dart';
 import '../../shared/resource_card.dart';
 import '../../shared/alert_row.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import '../../shared/notifications_sheet.dart';
 import '../../shared/state_widgets.dart';

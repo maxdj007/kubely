@@ -1,6 +1,7 @@
 import 'dart:developer' as dev;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/services/kubernetes_api_client.dart';
+import '../../data/services/demo_cluster.dart';
 import '../../data/services/secure_storage_service.dart';
 import '../../data/services/kubernetes_auth.dart';
 import '../../data/repositories/kubeconfig_parser.dart';
@@ -12,6 +13,13 @@ final kubeClientProvider = FutureProvider<KubernetesApiClient?>((ref) async {
   final state = ref.watch(clusterProvider);
   final active = state.active;
   if (active == null) return null;
+
+  // The demo cluster is served entirely from local fixtures — no kubeconfig,
+  // no network. Every screen works because it goes through the same client.
+  if (isDemoCluster(active.name)) {
+    dev.log('[kubely] Building demo client (fixtures, no network)');
+    return buildDemoApiClient();
+  }
 
   dev.log('[kubely] Building client for: ${active.name}');
 

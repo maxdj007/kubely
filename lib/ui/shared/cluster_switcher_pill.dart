@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/kubely_colors.dart';
 import '../../core/theme/kubely_typography.dart';
+import '../../data/services/demo_cluster.dart';
 import '../../state/providers/cluster_provider.dart';
 import '../screens/cluster_switcher/cluster_switcher_sheet.dart';
 import 'status_dot.dart';
@@ -69,6 +70,28 @@ class ClusterSwitcherPill extends ConsumerWidget {
                 maxLines: 1,
               ),
             ),
+            // Make it unmistakable that the demo cluster is sample data, not a
+            // real cluster. This pill is in the app bar on every screen.
+            if (isDemoCluster(state.activeName)) ...[
+              const SizedBox(width: 6),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                decoration: BoxDecoration(
+                  color: KubelyColors.accent.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  'DEMO',
+                  style: KubelyTypography.monoBody.copyWith(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                    color: KubelyColors.accent,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+            ],
             const SizedBox(width: 4),
             Icon(LucideIcons.chevronDown,
                 size: 13, color: KubelyColors.textDim),

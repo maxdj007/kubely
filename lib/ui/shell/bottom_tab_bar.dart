@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/utils/haptics.dart';
 import '../../core/theme/kubely_colors.dart';
 import '../../core/theme/kubely_typography.dart';

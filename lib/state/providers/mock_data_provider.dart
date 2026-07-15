@@ -1,5 +1,6 @@
 import 'dart:developer' as dev;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../data/services/demo_cluster.dart';
 import 'cluster_provider.dart';
 import 'k8s_data_provider.dart';
 
@@ -73,96 +74,6 @@ class DeployData {
   final int desired;
 }
 
-const _prodHealth = ClusterHealth(
-  status: 'Healthy',
-  percent: 0.98,
-  podCount: 47,
-  deployCount: 12,
-  nodeCount: 6,
-  cpuPercent: 0.62,
-  memPercent: 0.71,
-  cpuDetail: '14.9 / 24 vCPU',
-  memDetail: '68 / 96 GiB',
-  alerts: [
-    AlertData(
-        name: 'api-gateway-7d9f4',
-        status: 'CrashLoopBackOff',
-        detail: 'CrashLoopBackOff · restarts ×14'),
-    AlertData(
-        name: 'worker-batch-2b1c',
-        status: 'Pending',
-        detail: 'Pending · Unschedulable'),
-  ],
-);
-
-const _stagingHealth = ClusterHealth(
-  status: 'Healthy',
-  percent: 1.0,
-  podCount: 12,
-  deployCount: 5,
-  nodeCount: 3,
-  cpuPercent: 0.28,
-  memPercent: 0.34,
-  cpuDetail: '3.4 / 12 vCPU',
-  memDetail: '11 / 32 GiB',
-  alerts: [],
-);
-
-const _localHealth = ClusterHealth(
-  status: 'Degraded',
-  percent: 0.65,
-  podCount: 8,
-  deployCount: 3,
-  nodeCount: 1,
-  cpuPercent: 0.85,
-  memPercent: 0.92,
-  cpuDetail: '1.7 / 2 vCPU',
-  memDetail: '3.7 / 4 GiB',
-  alerts: [
-    AlertData(
-        name: 'metrics-server-7f4c',
-        status: 'CrashLoopBackOff',
-        detail: 'CrashLoopBackOff · restarts ×8'),
-  ],
-);
-
-const _prodPods = [
-  PodData(name: 'checkout-6f8b4c9d7-x2k9p', status: 'Running', age: '4d 6h',
-      sparkline: [0.3, 0.4, 0.35, 0.5, 0.45, 0.6, 0.55]),
-  PodData(name: 'web-7c4d8f6b2-m3n1q', status: 'Running', age: '2d 14h',
-      sparkline: [0.5, 0.5, 0.6, 0.55, 0.7, 0.65, 0.7]),
-  PodData(name: 'api-gateway-7d9f4', status: 'CrashLoopBackOff', age: '1d 3h',
-      sparkline: [0.8, 0.9, 0.95, 0.85, 0.9, 0.95, 1.0]),
-  PodData(name: 'payments-5a9c3e7d1-k8j2r', status: 'Running', age: '6d 2h',
-      sparkline: [0.2, 0.25, 0.3, 0.25, 0.3, 0.28, 0.3]),
-  PodData(name: 'worker-batch-2b1c', status: 'Pending', age: '3h',
-      sparkline: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
-  PodData(name: 'search-indexer-4b6d8c-r5t3', status: 'Running', age: '5d 18h',
-      sparkline: [0.4, 0.45, 0.5, 0.42, 0.48, 0.45, 0.5]),
-  PodData(name: 'notifications-3e7f9a-w4v2', status: 'Running', age: '1d 8h',
-      sparkline: [0.6, 0.55, 0.5, 0.55, 0.6, 0.58, 0.55]),
-  PodData(name: 'cache-redis-0', status: 'Running', age: '12d',
-      sparkline: [0.1, 0.12, 0.1, 0.11, 0.1, 0.12, 0.11]),
-];
-
-const _stagingPods = [
-  PodData(name: 'api-staging-5c8a2', status: 'Running', age: '1d',
-      sparkline: [0.2, 0.3, 0.25, 0.3, 0.28, 0.3, 0.25]),
-  PodData(name: 'web-staging-3f7b1', status: 'Running', age: '1d',
-      sparkline: [0.1, 0.15, 0.12, 0.18, 0.14, 0.16, 0.13]),
-  PodData(name: 'db-staging-0', status: 'Running', age: '3d',
-      sparkline: [0.4, 0.42, 0.38, 0.41, 0.4, 0.39, 0.42]),
-];
-
-const _localPods = [
-  PodData(name: 'app-local-abc12', status: 'Running', age: '2h',
-      sparkline: [0.6, 0.7, 0.65, 0.8, 0.75, 0.85, 0.8]),
-  PodData(name: 'metrics-server-7f4c', status: 'CrashLoopBackOff', age: '1h',
-      sparkline: [1.0, 0.9, 1.0, 0.95, 1.0, 0.9, 1.0]),
-  PodData(name: 'coredns-5d8c7', status: 'Running', age: '5h',
-      sparkline: [0.1, 0.1, 0.12, 0.1, 0.11, 0.1, 0.12]),
-];
-
 const _emptyHealth = ClusterHealth(
   status: 'Unknown',
   percent: 0,
@@ -175,8 +86,6 @@ const _emptyHealth = ClusterHealth(
   memDetail: '— / —',
   alerts: [],
 );
-
-const _demoNames = {'prod-eks-use1', 'staging-gke', 'minikube-local'};
 
 /// True when the active cluster has data available (demo mock or real API).
 /// Returns true for demo clusters and for any cluster with a stored kubeconfig.
@@ -193,33 +102,15 @@ final hasNoClustersProvider = Provider<bool>((ref) {
   return state.clusters.isEmpty && state.loaded;
 });
 
-const _healthByName = {
-  'prod-eks-use1': _prodHealth,
-  'staging-gke': _stagingHealth,
-  'minikube-local': _localHealth,
-};
-
-const _podsByName = {
-  'prod-eks-use1': _prodPods,
-  'staging-gke': _stagingPods,
-  'minikube-local': _localPods,
-};
-
 final clusterHealthProvider = FutureProvider<ClusterHealth>((ref) async {
-  final cluster = ref.watch(clusterProvider);
-  final name = cluster.activeName;
-  final mock = _healthByName[name];
-  if (mock != null) return mock;
+  ref.watch(clusterProvider); // refetch when the active cluster changes
 
   // Real cluster — delegate to realClusterHealthProvider
   return ref.watch(realClusterHealthProvider.future);
 });
 
 final podListProvider = FutureProvider<List<PodData>>((ref) async {
-  final cluster = ref.watch(clusterProvider);
-  final name = cluster.activeName;
-  final mock = _podsByName[name];
-  if (mock != null) return mock;
+  ref.watch(clusterProvider); // refetch when the active cluster changes
 
   // Real cluster — fetch from API
   final client = await ref.watch(kubeClientProvider.future);
@@ -247,28 +138,7 @@ final podListProvider = FutureProvider<List<PodData>>((ref) async {
 });
 
 final deployListProvider = FutureProvider<List<DeployData>>((ref) async {
-  final cluster = ref.watch(clusterProvider);
-  final name = cluster.activeName;
-  const deploysByName = {
-    'prod-eks-use1': [
-      DeployData(name: 'checkout', namespace: 'default', ready: 5, desired: 5),
-      DeployData(name: 'web', namespace: 'default', ready: 8, desired: 8),
-      DeployData(name: 'api-gateway', namespace: 'infra', ready: 2, desired: 3),
-      DeployData(name: 'payments', namespace: 'default', ready: 3, desired: 3),
-      DeployData(name: 'worker-batch', namespace: 'jobs', ready: 0, desired: 1),
-      DeployData(name: 'search-indexer', namespace: 'data', ready: 2, desired: 2),
-      DeployData(name: 'notifications', namespace: 'default', ready: 4, desired: 4),
-    ],
-    'staging-gke': [
-      DeployData(name: 'api-staging', namespace: 'default', ready: 1, desired: 1),
-      DeployData(name: 'web-staging', namespace: 'default', ready: 1, desired: 1),
-    ],
-    'minikube-local': [
-      DeployData(name: 'app-local', namespace: 'default', ready: 1, desired: 1),
-    ],
-  };
-  final mock = deploysByName[name];
-  if (mock != null) return mock;
+  ref.watch(clusterProvider); // refetch when the active cluster changes
 
   final client = await ref.watch(kubeClientProvider.future);
   if (client == null) return const [];
@@ -319,15 +189,15 @@ class ActivityData {
   final String type; // 'scale', 'restart', 'create', 'delete'
 }
 
+/// The activity feed has no Kubernetes API equivalent (it would need an audit
+/// log), so it stays empty for real clusters and is populated only for the demo.
 final activityProvider = Provider<List<ActivityData>>((ref) {
   final name = ref.watch(clusterProvider).activeName;
-  const data = {
-    'prod-eks-use1': [
-      ActivityData(text: 'Scaled ', highlight: 'checkout', suffix: ' to 5 replicas', time: '2m', type: 'scale'),
-      ActivityData(text: 'Rollout restarted on ', highlight: 'web', time: '18m', type: 'restart'),
-    ],
-  };
-  return data[name] ?? const [];
+  if (!isDemoCluster(name)) return const [];
+  return const [
+    ActivityData(text: 'Scaled ', highlight: 'checkout', suffix: ' to 3 replicas', time: '2m', type: 'scale'),
+    ActivityData(text: 'Rollout restarted on ', highlight: 'web', time: '18m', type: 'restart'),
+  ];
 });
 
 // ── Event data ──
@@ -350,19 +220,7 @@ class EventData {
 }
 
 final eventListProvider = FutureProvider<List<EventData>>((ref) async {
-  final name = ref.watch(clusterProvider).activeName;
-  const mockData = {
-    'prod-eks-use1': [
-      EventData(type: 'Warning', reason: 'FailedScheduling', object: 'worker-batch-2b1c', message: '0/6 nodes available: insufficient cpu', age: '3m'),
-      EventData(type: 'Warning', reason: 'BackOff', object: 'api-gateway-7d9f4', message: 'Back-off restarting failed container', age: '5m'),
-      EventData(type: 'Normal', reason: 'Pulled', object: 'checkout-6f8b4c9d7', message: 'Successfully pulled image "checkout:1.18.2"', age: '12m'),
-      EventData(type: 'Normal', reason: 'Scaled', object: 'checkout', message: 'Scaled up replica set checkout-6f8b4c9d7 to 5', age: '15m'),
-      EventData(type: 'Normal', reason: 'Started', object: 'web-7c4d8f6b2', message: 'Started container web', age: '22m'),
-      EventData(type: 'Normal', reason: 'Created', object: 'cache-redis-0', message: 'Created container redis', age: '1h'),
-    ],
-  };
-  final mock = mockData[name];
-  if (mock != null) return mock;
+  ref.watch(clusterProvider); // refetch when the active cluster changes
   final client = await ref.watch(kubeClientProvider.future);
   if (client == null) return const [];
   try {
@@ -401,16 +259,7 @@ class ServiceData {
 }
 
 final serviceListProvider = FutureProvider<List<ServiceData>>((ref) async {
-  final name = ref.watch(clusterProvider).activeName;
-  const mockData = {
-    'prod-eks-use1': [
-      ServiceData(name: 'checkout-svc', type: 'ClusterIP', clusterIp: '10.96.42.15', port: '8080'),
-      ServiceData(name: 'api-gateway', type: 'LoadBalancer', clusterIp: '10.96.1.200', port: '443'),
-      ServiceData(name: 'redis-master', type: 'ClusterIP', clusterIp: '10.96.88.3', port: '6379'),
-    ],
-  };
-  final mock = mockData[name];
-  if (mock != null) return mock;
+  ref.watch(clusterProvider); // refetch when the active cluster changes
   final client = await ref.watch(kubeClientProvider.future);
   if (client == null) return const [];
   try {

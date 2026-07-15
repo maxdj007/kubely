@@ -1,4 +1,4 @@
-package com.kubely.kubely
+package com.falqor.kubely
 
 import io.flutter.embedding.android.FlutterActivity
 

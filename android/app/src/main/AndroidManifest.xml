@@ -1,6 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- QR scanning of kubeconfigs in the add-cluster flow. Previously supplied
+         by mobile_scanner's manifest; qr_code_scanner_plus does not declare it. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Optional: the app is fully usable via paste/file, so don't exclude
+         camera-less devices from installing. -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
     <application
-        android:label="kubely"
+        android:label="Kubely"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
