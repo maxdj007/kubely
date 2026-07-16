@@ -1,7 +1,7 @@
 name: kubely
 description: "Kubely — a mobile cockpit for Kubernetes. 100% on-device, no backend."
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: ^3.11.0

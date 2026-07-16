@@ -5,6 +5,13 @@ platform :ios, '15.5'
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
+# file_picker is only used to pick kubeconfig files (documents). Disable its media
+# and audio pickers so it stops depending on DKImagePickerController, which links
+# the Photos and Core Location frameworks and forces NSPhotoLibraryUsageDescription /
+# NSLocationWhenInUseUsageDescription purpose strings (App Store reject ITMS-90683).
+Pod.const_set(:PICKER_MEDIA, false) unless Pod.const_defined?(:PICKER_MEDIA)
+Pod.const_set(:PICKER_AUDIO, false) unless Pod.const_defined?(:PICKER_AUDIO)
+
 project 'Runner', {
   'Debug' => :debug,
   'Profile' => :release,

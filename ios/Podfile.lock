@@ -1,22 +1,34 @@
 PODS:
+  - file_picker (0.0.1):
+    - Flutter
   - Flutter (1.0.0)
   - flutter_secure_storage (6.0.0):
     - Flutter
+  - qr_code_scanner_plus (0.2.6):
+    - Flutter
 
 DEPENDENCIES:
+  - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - Flutter (from `Flutter`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
+  - qr_code_scanner_plus (from `.symlinks/plugins/qr_code_scanner_plus/ios`)
 
 EXTERNAL SOURCES:
+  file_picker:
+    :path: ".symlinks/plugins/file_picker/ios"
   Flutter:
     :path: Flutter
   flutter_secure_storage:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
+  qr_code_scanner_plus:
+    :path: ".symlinks/plugins/qr_code_scanner_plus/ios"
 
 SPEC CHECKSUMS:
+  file_picker: fb04e739ae6239a76ce1f571863a196a922c87d4
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13
+  qr_code_scanner_plus: c6e79405d5fc87c45349daed2da322bcb2728961
 
-PODFILE CHECKSUM: 4f99b1c0b02506ff147eed7247467170bec557c2
+PODFILE CHECKSUM: a2bf2b268028985ad34b95ccf41b79f2b0a6e713
 
 COCOAPODS: 1.16.2
